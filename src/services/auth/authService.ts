@@ -1,42 +1,14 @@
-import axiosInstance from "@/core/api/axiosInstance";
+import { authApi, type User } from '../html2pdfApi';
 
 export interface SigninRequest {
   email: string;
   password: string;
 }
 
-export interface PostDetails {
-  createdBy: string | null;
-  createdAt: string;
-  updatedBy: string | null;
-  updatedAt: string;
-  id: number;
-  name: string;
-  roleId: number;
-  roleName: string;
-  email: string;
-  locationId: number;
-  locationName: string;
-  locationAddress: string;
-  locationCity: string;
-  locationState: string;
-}
-
 export interface SigninResponseData {
-  role: string;
-  permission: string[];
-  managersAssignedToPost: [];
-  postDetails: PostDetails;
   accessToken: string;
-  id: string;
-  loginId: string;
-  userType: string;
-  status: string;
-  lastLoggedIn: string | null;
-  changePasswordRequired: boolean;
-  lastPasswordChanged: string | null;
-  resetRequired: boolean;
-  mobileVerification: string | null;
+  refreshToken: string;
+  user: User;
 }
 
 export interface SigninResponse {
@@ -48,23 +20,10 @@ export interface SigninResponse {
 export interface SignupRequest {
   email: string;
   password: string;
-  name: string;
-  phone?: string;
-  country?: string;
 }
 
 export interface SignupResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-    avatar?: string;
-    permissions?: string[];
-  };
-  expiresAt: number;
+  message: string;
 }
 
 export interface ApiError {
@@ -89,27 +48,50 @@ export const authService = {
    * Sign in user with email and password
    */
   signin: async (email: string, password: string): Promise<SigninResponse> => {
-    const response = await axiosInstance.post<SigninResponse>('/public/signin', { 
-      email, 
-      password 
-    });
-    return response.data;
+    try {
+      const response = await authApi.login(email, password);
+      // Store tokens in localStorage
+      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      return {
+        success: true,
+        message: 'Login successful',
+        data: response,
+      };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Login failed';
+      return {
+        success: false,
+        message: errorMessage,
+        data: {} as SigninResponseData,
+      };
+    }
   },
 
   /**
    * Sign up new user
    */
   signup: async (data: SignupRequest): Promise<SignupResponse> => {
-    const response = await axiosInstance.post<SignupResponse>('/auth/signup', data);
-    return response.data;
+    const response = await authApi.signup(data.email, data.password);
+    return response;
   },
 
   /**
    * Refresh authentication token
    */
   refreshToken: async (): Promise<{ accessToken: string; expiresAt: number }> => {
-    const response = await axiosInstance.post<{ accessToken: string; expiresAt: number }>('/auth/refresh');
-    return response.data;
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+    
+    const response = await authApi.refreshToken(refreshToken);
+    return {
+      accessToken: response.accessToken,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+    };
   },
 
   /**
@@ -117,53 +99,57 @@ export const authService = {
    */
   signout: async (): Promise<void> => {
     try {
-      await axiosInstance.get('/user/signout');
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        await authApi.logout(refreshToken);
+      }
     } catch (error) {
       // Don't throw error for signout, just log it
       console.warn('Signout error:', error);
+    } finally {
+      // Always clear local storage
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     }
   },
 
   /**
    * Get current user profile
    */
-  getCurrentUser: async (): Promise<SigninResponseData> => {
-    const response = await axiosInstance.get<SigninResponseData>('/auth/me');
-    return response.data;
+  getCurrentUser: async (): Promise<User> => {
+    const response = await authApi.getProfile();
+    return response;
   },
 
   /**
    * Forgot password request
    */
   forgotPassword: async (email: string): Promise<{ message: string }> => {
-    const response = await axiosInstance.post<{ message: string }>('/auth/forgot-password', { email });
-    return response.data;
+    const response = await authApi.forgotPassword(email);
+    return response;
   },
 
   /**
    * Reset password with token
    */
   resetPassword: async (token: string, newPassword: string): Promise<{ message: string }> => {
-    const response = await axiosInstance.post<{ message: string }>('/auth/reset-password', { 
-      token, 
-      newPassword 
-    });
-    return response.data;
+    const response = await authApi.resetPassword(token, newPassword);
+    return response;
   },
 
   /**
    * Verify email with token
    */
   verifyEmail: async (token: string): Promise<{ message: string }> => {
-    const response = await axiosInstance.post<{ message: string }>('/auth/verify-email', { token });
-    return response.data;
+    const response = await authApi.verifyEmail(token);
+    return response;
   },
 
   /**
    * Resend email verification
    */
-  resendVerification: async (email: string): Promise<{ message: string }> => {
-    const response = await axiosInstance.post<{ message: string }>('/auth/resend-verification', { email });
-    return response.data;
+  resendVerification: async (): Promise<{ message: string }> => {
+    // This would need to be implemented in the backend
+    throw new Error('Resend verification not implemented');
   }
 };

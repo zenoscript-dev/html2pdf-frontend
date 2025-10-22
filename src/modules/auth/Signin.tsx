@@ -45,12 +45,13 @@ export default function Signin() {
     },
     {
       mutationKey: [authKeys.LOGIN],
-      onSuccess: (data:SigninResponse) => {
-        if(data.success) {
+      onSuccess: (data: SigninResponse) => {
+        if (data.success) {
           setToken(data.data.accessToken);
+          localStorage.setItem('refreshToken', data.data.refreshToken);
           toast({
             title: "Sign in successful",
-            description: `Welcome back, ${data.data.postDetails.name}`,
+            description: `Welcome back, ${data.data.user.email}`,
             variant: "default",
           });
           navigate('/dashboard');

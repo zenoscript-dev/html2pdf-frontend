@@ -19,9 +19,13 @@ type AuthProviderProps = {
 
 import { createContext, useContext } from 'react';
 
+import type { User } from '@/services/html2pdfApi';
+
 export type AuthContextType = {
   token: string | null;
+  user: User | null;
   setToken: (token: string | null) => void;
+  setUser: (user: User | null) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,7 +42,8 @@ export const useAuth = (): AuthContextType => {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   
-  const [token, setToken] = useState<string | null>();
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   // Fetch current user on initial load for protected routes
   useEffect(() => {
@@ -52,14 +57,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         // Only fetch user data if on a protected route
         if (isProtectedRoute(currentPath)) {
-          const response = await axiosInstance.get<{ accessToken: string }>('/auth/me', {withCredentials: true});
-          setToken(response.data?.data?.accessToken);
+          const response = await axiosInstance.get<User>('/auth/profile');
+          setUser(response.data);
+          // Token should already be set from localStorage or previous session
+          const storedToken = localStorage.getItem('accessToken');
+          if (storedToken) {
+            setToken(storedToken);
+          }
         } else {
           setToken(null);
+          setUser(null);
         }
       } catch (error: unknown) {
-        console.error(error);
+        console.error('Failed to fetch user profile:', error);
         setToken(null);
+        setUser(null);
+        // Clear any stored tokens on error
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
       }
     };
 
@@ -139,7 +154,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, setToken } as unknown as AuthContextType}>
+    <AuthContext.Provider value={{ token, user, setToken, setUser }}>
       {children}
     </AuthContext.Provider>
   );

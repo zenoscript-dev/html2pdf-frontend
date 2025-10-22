@@ -27,7 +27,7 @@ const LandingPage: React.FC = () => {
     <div className='bg-background text-foreground min-h-screen'>
       <Navbar scrollToSection={scrollToSection} />
       <HeroSection />
-      <ConversionSection />
+      {/* <ConversionSection /> */}
       <FeaturesSection />
       <PricingSection />
       <CTASection />

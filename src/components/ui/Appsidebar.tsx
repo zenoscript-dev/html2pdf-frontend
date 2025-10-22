@@ -1,8 +1,9 @@
-import { ChevronDown, ChevronUp, ClipboardList, Home, User2, Settings, Users } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '@/components/AuthProvider'
+import { BarChart3, ChevronDown, ChevronUp, Crown, FileText, Home, Key, Settings, User2, Zap } from 'lucide-react'
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarSeparator } from './sidebar'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarSeparator } from './sidebar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip'
 
 interface SidebarItems {
@@ -15,7 +16,8 @@ interface SidebarItems {
 
 const Appsidebar = () => {
   const navigate = useNavigate()
-  const companyName = import.meta.env.VITE_APPLICATION_NAME || 'TSMS'
+  const { user } = useAuth()
+  const companyName = import.meta.env.VITE_APPLICATION_NAME || 'HTML2PDF'
   const [openConfiguration, setOpenConfiguration] = useState(true)
   
   const Items: SidebarItems[] = [
@@ -25,58 +27,31 @@ const Appsidebar = () => {
       path: "/dashboard",
     },
     {
-      title: "Configuration",
+      title: "API Keys",
+      icon: <Key className="h-4 w-4" />,
+      path: "/api-keys",
+    },
+    {
+      title: "Usage Analytics",
+      icon: <BarChart3 className="h-4 w-4" />,
+      path: "/usage",
+    },
+    {
+      title: "PDF Tester",
+      icon: <FileText className="h-4 w-4" />,
+      path: "/pdf-tester",
+    },
+    {
+      title: "Plans",
+      icon: <Crown className="h-4 w-4" />,
+      path: "/plans",
+    },
+    ...(user?.role === 'ADMIN' ? [{
+      title: "Admin Dashboard",
       icon: <Settings className="h-4 w-4" />,
-      items: [
-        {
-          title: "Data Source",
-          icon: <ClipboardList className="h-4 w-4" />,
-          path: "/datasource",
-        },
-        {
-          title: "Data Source Transform",
-          icon: <ClipboardList className="h-4 w-4" />,
-          path: "/datasource-transform",
-        },
-        {
-          title: "CV DataBase",
-          icon: <ClipboardList className="h-4 w-4" />,
-          path: "/cv-database",
-        },
-        {
-          title: "JD DataBase",
-          icon: <ClipboardList className="h-4 w-4" />,
-          path: "/jd-database",
-        },
-      ]
-    },
-    {
-      title: "Hiring Process Dashboard",
-      icon: <ClipboardList className="h-4 w-4" />,
-      path: "/hiring-process-dashboard",
-    },
-    {
-      title: "Clients",
-      icon: <Users className="h-4 w-4" />,
-      path: "/clients",
-    },
-    {
-      title: "Master Organization Pipeline",
-      icon: <Users className="h-4 w-4" />,
-      path: "/master-organization-pipeline",
-    },
-    {
-      title: "Master Feature",
-      icon: <Users className="h-4 w-4" />,
-      path: "/master-feature",
-    },
-
-    // {
-    //   title: "Team Management",
-    //   icon: <UserCheck className="h-4 w-4" />,
-    //   path: "/team-management",
-    // },
-   
+      path: "/admin",
+      roles: ['ADMIN']
+    }] : [])
   ]
 
   return (
@@ -87,9 +62,7 @@ const Appsidebar = () => {
             <SidebarMenuButton asChild className='min-w-full'>
               <Link to="/" className="flex items-left w-full text-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-sm">
-                    {companyName.charAt(0)}
-                  </span>
+                  <Zap className="h-4 w-4 text-white" />
                 </div>
                 <span className="font-semibold text-foreground truncate">
                   {companyName}
@@ -156,8 +129,6 @@ const Appsidebar = () => {
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
-                    {item.title === "Personal Time Study" &&
-                      <SidebarMenuBadge>45</SidebarMenuBadge>}
                   </SidebarMenuItem>
                 )
               ))}
@@ -174,8 +145,8 @@ const Appsidebar = () => {
                 <SidebarMenuButton className='h-15'>
                   <User2 className='h-8 w-8 text-custom-color' />
                   <div className='text-sm flex flex-col'>
-                    <p>Naresh</p>
-                    <p className='italic'>Super Admin</p>
+                    <p>{user?.email?.split('@')[0] || 'User'}</p>
+                    <p className='italic'>{user?.role || 'User'}</p>
                   </div>
                   <ChevronUp className='ml-auto' />
                 </SidebarMenuButton>

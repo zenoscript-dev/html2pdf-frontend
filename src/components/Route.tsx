@@ -5,10 +5,18 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { isProtectedRoute } from '@/core/config/routes';
 import { useAuth } from './AuthProvider';
 
-const Route = ({ children, isProtected }: { children: React.ReactNode; isProtected?: boolean }) => {
+const Route = ({ 
+  children, 
+  isProtected, 
+  requiredRole 
+}: { 
+  children: React.ReactNode; 
+  isProtected?: boolean;
+  requiredRole?: string;
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   // If isProtected is not explicitly passed, determine from route configuration
   const shouldBeProtected = isProtected ?? isProtectedRoute(location.pathname);
@@ -17,7 +25,11 @@ const Route = ({ children, isProtected }: { children: React.ReactNode; isProtect
     if (shouldBeProtected && token === null) {
       navigate('/signin', { replace: true });
     }
-  }, [shouldBeProtected, navigate, token]);
+    
+    if (requiredRole && user && user.role !== requiredRole) {
+      navigate('/forbidden', { replace: true });
+    }
+  }, [shouldBeProtected, navigate, token, requiredRole, user]);
 
   // if (token === undefined) {
   //   return (

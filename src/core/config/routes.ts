@@ -14,14 +14,34 @@ export const ROUTES: RouteConfig[] = [
     title: 'Landing',
   },
   {
-    path: '/register',
+    path: '/signup',
     isProtected: false,
-    title: 'Register',
+    title: 'Sign Up',
   },
   {
     path: '/signin',
     isProtected: false,
     title: 'Sign In',
+  },
+  {
+    path: '/forbidden',
+    isProtected: false,
+    title: 'Forbidden',
+  },
+  {
+    path: '/unauthorized',
+    isProtected: false,
+    title: 'Unauthorized',
+  },
+  {
+    path: '/not-found',
+    isProtected: false,
+    title: 'Not Found',
+  },
+  {
+    path: '/spinner',
+    isProtected: false,
+    title: 'Loading',
   },
   // Protected routes (with sidebar)
   {
@@ -30,9 +50,29 @@ export const ROUTES: RouteConfig[] = [
     title: 'Dashboard',
   },
   {
-    path: '/not-found',
-    isProtected: false,
-    title: 'Not Found',
+    path: '/api-keys',
+    isProtected: true,
+    title: 'API Keys',
+  },
+  {
+    path: '/usage',
+    isProtected: true,
+    title: 'Usage Analytics',
+  },
+  {
+    path: '/pdf-tester',
+    isProtected: true,
+    title: 'PDF Tester',
+  },
+  {
+    path: '/plans',
+    isProtected: true,
+    title: 'Plans',
+  },
+  {
+    path: '/admin',
+    isProtected: true,
+    title: 'Admin Dashboard',
   },
 ];
 
