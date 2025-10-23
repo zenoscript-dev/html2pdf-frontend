@@ -7,7 +7,6 @@ export interface SigninRequest {
 
 export interface SigninResponseData {
   accessToken: string;
-  refreshToken: string;
   user: User;
 }
 
@@ -50,9 +49,7 @@ export const authService = {
   signin: async (email: string, password: string): Promise<SigninResponse> => {
     try {
       const response = await authApi.login(email, password);
-      // Store tokens in localStorage
-      localStorage.setItem('accessToken', response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
+      // Tokens are now managed by AuthContext and cookies
       return {
         success: true,
         message: 'Login successful',
@@ -82,12 +79,8 @@ export const authService = {
    * Refresh authentication token
    */
   refreshToken: async (): Promise<{ accessToken: string; expiresAt: number }> => {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-    
-    const response = await authApi.refreshToken(refreshToken);
+    // Refresh token is now handled via cookies by the backend
+    const response = await authApi.refreshToken();
     return {
       accessToken: response.accessToken,
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
@@ -99,18 +92,13 @@ export const authService = {
    */
   signout: async (): Promise<void> => {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        await authApi.logout(refreshToken);
-      }
+      // Logout is now handled via cookies by the backend
+      await authApi.logout();
     } catch (error) {
       // Don't throw error for signout, just log it
       console.warn('Signout error:', error);
-    } finally {
-      // Always clear local storage
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
     }
+    // No need to clear localStorage - backend handles refresh tokens via cookies
   },
 
   /**

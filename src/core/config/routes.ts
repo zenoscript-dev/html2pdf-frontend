@@ -65,6 +65,31 @@ export const ROUTES: RouteConfig[] = [
     title: 'PDF Tester',
   },
   {
+    path: '/api-docs',
+    isProtected: true,
+    title: 'API Documentation',
+  },
+  {
+    path: '/api-docs/javascript',
+    isProtected: true,
+    title: 'JavaScript Examples',
+  },
+  {
+    path: '/api-docs/python',
+    isProtected: true,
+    title: 'Python Examples',
+  },
+  {
+    path: '/api-docs/go',
+    isProtected: true,
+    title: 'Go Examples',
+  },
+  {
+    path: '/api-docs/java',
+    isProtected: true,
+    title: 'Java Examples',
+  },
+  {
     path: '/plans',
     isProtected: true,
     title: 'Plans',

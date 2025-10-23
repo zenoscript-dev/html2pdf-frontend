@@ -10,7 +10,7 @@ import Navbar from '@/components/Navbar/NavbarNonAuth';
 import React, { useEffect, useState } from 'react';
 
 const LandingPage: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [_isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);

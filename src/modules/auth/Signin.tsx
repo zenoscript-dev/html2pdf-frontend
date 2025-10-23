@@ -24,7 +24,7 @@ interface ApiError {
 
 export default function Signin() {
   const [showPassword, setShowPassword] = useState(false);
-  const { setToken } = useAuth();
+  const { setToken, setUser } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -48,7 +48,7 @@ export default function Signin() {
       onSuccess: (data: SigninResponse) => {
         if (data.success) {
           setToken(data.data.accessToken);
-          localStorage.setItem('refreshToken', data.data.refreshToken);
+          setUser(data.data.user);
           toast({
             title: "Sign in successful",
             description: `Welcome back, ${data.data.user.email}`,

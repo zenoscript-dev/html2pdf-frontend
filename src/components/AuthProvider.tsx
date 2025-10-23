@@ -57,13 +57,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         // Only fetch user data if on a protected route
         if (isProtectedRoute(currentPath)) {
-          const response = await axiosInstance.get<User>('/auth/profile');
-          setUser(response.data);
-          // Token should already be set from localStorage or previous session
-          const storedToken = localStorage.getItem('accessToken');
-          if (storedToken) {
-            setToken(storedToken);
-          }
+          console.log('Fetching user profile on protected route...');
+          console.log('Current cookies:', document.cookie);
+          const response = await axiosInstance.post<{accessToken: string, user: User}>('/auth/refresh');
+          setUser(response.data.user as User);
+          setToken(response.data.accessToken);
+          console.log('User profile fetched successfully:', response.data);
         } else {
           setToken(null);
           setUser(null);
@@ -72,9 +71,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.error('Failed to fetch user profile:', error);
         setToken(null);
         setUser(null);
-        // Clear any stored tokens on error
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        // No need to clear localStorage - backend handles refresh tokens via cookies
       }
     };
 
@@ -106,12 +103,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         if (
           error.response?.status === 401 &&
-          (error.response?.data as { message?: string })?.message === 'Unauthorized' &&
           !originalRequest._retry
         ) {
           originalRequest._retry = true;
           try {
-            const response = await axiosInstance.get<{ accessToken: string }>('/refreshToken');
+            console.log('Attempting to refresh token...');
+            const response = await axiosInstance.post<{ accessToken: string }>('/auth/refresh');
+            console.log('Token refresh successful:', response.data);
             setToken(response.data.accessToken);
 
             originalRequest.headers = {
@@ -119,9 +117,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               Authorization: `Bearer ${response.data.accessToken}`
             };
 
+            console.log('Retrying original request with new token...');
             return axiosInstance(originalRequest);
           } catch (refreshError) {
+            console.error('Token refresh failed:', refreshError);
             setToken(null);
+            setUser(null);
             return Promise.reject(refreshError);
           }
         }

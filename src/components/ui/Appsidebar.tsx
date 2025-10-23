@@ -1,5 +1,5 @@
 import { useAuth } from '@/components/AuthProvider'
-import { BarChart3, ChevronDown, ChevronUp, Crown, FileText, Home, Key, Settings, User2, Zap } from 'lucide-react'
+import { BarChart3, BookOpen, ChevronDown, ChevronUp, Code, Crown, FileText, Home, Key, Settings, User2, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
@@ -40,6 +40,37 @@ const Appsidebar = () => {
       title: "PDF Tester",
       icon: <FileText className="h-4 w-4" />,
       path: "/pdf-tester",
+    },
+    {
+      title: "Documentation",
+      icon: <BookOpen className="h-4 w-4" />,
+      items: [
+        {
+          title: "Overview",
+          icon: <BookOpen className="h-4 w-4" />,
+          path: "/api-docs",
+        },
+        {
+          title: "JavaScript",
+          icon: <Code className="h-4 w-4" />,
+          path: "/api-docs/javascript",
+        },
+        {
+          title: "Python",
+          icon: <Code className="h-4 w-4" />,
+          path: "/api-docs/python",
+        },
+        {
+          title: "Go",
+          icon: <Code className="h-4 w-4" />,
+          path: "/api-docs/go",
+        },
+        {
+          title: "Java",
+          icon: <Code className="h-4 w-4" />,
+          path: "/api-docs/java",
+        },
+      ],
     },
     {
       title: "Plans",

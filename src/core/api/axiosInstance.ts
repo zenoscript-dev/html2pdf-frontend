@@ -1,8 +1,8 @@
 import axios, { AxiosError } from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
-    withCredentials: false, // Changed to false since backend doesn't require credentials
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:10000/api/v1',
+    withCredentials: true, // Enable cookies for refresh tokens
     headers: {
         "Content-Type": "application/json",
     },

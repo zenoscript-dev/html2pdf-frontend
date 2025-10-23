@@ -554,46 +554,6 @@ export default function PdfTester() {
             </CardContent>
           </Card>
 
-          {/* API Documentation */}
-          <Card>
-            <CardHeader>
-              <CardTitle>API Documentation</CardTitle>
-              <CardDescription>
-                Quick reference for API usage
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-2">cURL Example</h4>
-                <div className="bg-muted p-3 rounded-lg font-mono text-xs">
-                  <div>curl -X POST \</div>
-                  <div className="ml-4">-H "X-API-Key: your_key" \</div>
-                  <div className="ml-4">-H "Content-Type: application/json" \</div>
-                  <div className="ml-4">-d '{'{'}"html": "&lt;h1&gt;Hello&lt;/h1&gt;"{'}'}' \</div>
-                  <div className="ml-4">http://localhost:6700/api/v1/pdf/generate</div>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="font-medium mb-2">JavaScript Example</h4>
-                <div className="bg-muted p-3 rounded-lg font-mono text-xs">
-                  <div>const response = await fetch(</div>
-                  <div className="ml-4">'http://localhost:6700/api/v1/pdf/generate',</div>
-                  <div className="ml-4">{'{'}</div>
-                  <div className="ml-8">method: 'POST',</div>
-                  <div className="ml-8">headers: {'{'}</div>
-                  <div className="ml-12">'X-API-Key': 'your_key',</div>
-                  <div className="ml-12">'Content-Type': 'application/json'</div>
-                  <div className="ml-8">{'}'},</div>
-                  <div className="ml-8">body: JSON.stringify({'{'}</div>
-                  <div className="ml-12">html: '&lt;h1&gt;Hello&lt;/h1&gt;'</div>
-                  <div className="ml-8">{'}'})</div>
-                  <div className="ml-4">{'}'}</div>
-                  <div>);</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

@@ -1,14 +1,7 @@
-import axios from 'axios';
+import axiosInstance from '@/core/api/axiosInstance';
 
-// Base API configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:6700/api/v1';
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Use the same axios instance that has token injection
+const apiClient = axiosInstance;
 
 // API Key management
 let currentApiKey: string | null = null;
@@ -21,14 +14,12 @@ export const clearApiKey = () => {
   currentApiKey = null;
 };
 
-// Request interceptor to add auth token and API key
+// Note: Auth token injection is handled by AuthProvider via axiosInstance
+// X-API-Key header injection is handled by the interceptor below
+
+// Request interceptor to add X-API-Key header
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
     // Add X-API-Key header if API key is set
     if (currentApiKey) {
       config.headers['X-API-Key'] = currentApiKey;
@@ -46,9 +37,8 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      // window.location.href = '/signin';
+      // Auth token handling is now managed by AuthProvider
+      // No need to clear localStorage here
     }
     return Promise.reject(error);
   }
@@ -73,7 +63,6 @@ export interface User {
 
 export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
   user: User;
 }
 
@@ -188,13 +177,13 @@ export const authApi = {
     return response.data;
   },
 
-  refreshToken: async (refreshToken: string) => {
-    const response = await apiClient.post('/auth/refresh', { refreshToken });
+  refreshToken: async () => {
+    const response = await apiClient.post('/auth/refresh');
     return response.data;
   },
 
-  logout: async (refreshToken: string) => {
-    const response = await apiClient.post('/auth/logout', { refreshToken });
+  logout: async () => {
+    const response = await apiClient.post('/auth/logout');
     return response.data;
   },
 

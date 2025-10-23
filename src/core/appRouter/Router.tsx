@@ -11,6 +11,7 @@ const Dashboard = lazy(() => import('@/modules/Dashboard.tsx'));
 const ApiKeysPage = lazy(() => import('@/modules/ApiKeysPage.tsx'));
 const UsageAnalytics = lazy(() => import('@/modules/UsageAnalytics.tsx'));
 const PdfTester = lazy(() => import('@/modules/PdfTester.tsx'));
+const ApiDocumentation = lazy(() => import('@/modules/ApiDocumentation.tsx'));
 const PlansPage = lazy(() => import('@/modules/PlansPage.tsx'));
 const AdminDashboard = lazy(() => import('@/modules/AdminDashboard.tsx'));
 const NotFoundPage = lazy(() => import('../../modules/error/NotFoundPage'));
@@ -99,6 +100,56 @@ const router = createBrowserRouter([
           <LoadingWrapper>
             <Route isProtected={true}>
               <PdfTester />
+            </Route>
+          </LoadingWrapper>
+        ),
+      },
+      {
+        path: '/api-docs',
+        element: (
+          <LoadingWrapper>
+            <Route isProtected={true}>
+              <ApiDocumentation />
+            </Route>
+          </LoadingWrapper>
+        ),
+      },
+      {
+        path: '/api-docs/javascript',
+        element: (
+          <LoadingWrapper>
+            <Route isProtected={true}>
+              <ApiDocumentation />
+            </Route>
+          </LoadingWrapper>
+        ),
+      },
+      {
+        path: '/api-docs/python',
+        element: (
+          <LoadingWrapper>
+            <Route isProtected={true}>
+              <ApiDocumentation />
+            </Route>
+          </LoadingWrapper>
+        ),
+      },
+      {
+        path: '/api-docs/go',
+        element: (
+          <LoadingWrapper>
+            <Route isProtected={true}>
+              <ApiDocumentation />
+            </Route>
+          </LoadingWrapper>
+        ),
+      },
+      {
+        path: '/api-docs/java',
+        element: (
+          <LoadingWrapper>
+            <Route isProtected={true}>
+              <ApiDocumentation />
             </Route>
           </LoadingWrapper>
         ),

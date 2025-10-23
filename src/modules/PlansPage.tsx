@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/useToast';
-import { plansApi } from '@/services/html2pdfApi';
+import { plansApi, type Plan } from '@/services/html2pdfApi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, Check, Crown, Star, X, Zap } from 'lucide-react';
 import { useState } from 'react';
@@ -27,13 +27,13 @@ export default function PlansPage() {
       // This would need to be implemented in the backend
       // For now, we'll assume the user is on the Free plan
       const allPlans = await plansApi.getAll();
-      return allPlans.find((plan: any) => plan.name === 'Free') || allPlans[0];
+      return allPlans.find((plan: Plan) => plan.name === 'Free') || allPlans[0];
     },
   });
 
   // Upgrade plan mutation (this would need to be implemented in the backend)
   const upgradePlanMutation = useMutation({
-    mutationFn: async (planId: string) => {
+    mutationFn: async () => {
       // This would need to be implemented in the backend
       // For now, we'll just simulate the API call
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -57,7 +57,7 @@ export default function PlansPage() {
 
   const handleUpgrade = (planId: string) => {
     setSelectedPlan(planId);
-    upgradePlanMutation.mutate(planId);
+    upgradePlanMutation.mutate();
   };
 
   const formatPrice = (price: number) => {
@@ -171,9 +171,9 @@ export default function PlansPage() {
         {plans?.map((plan) => (
           <Card 
             key={plan.id} 
-            className={`relative ${isPopularPlan(plan.name) ? 'border-blue-500 shadow-lg' : ''}`}
+            className={`relative ${isPopularPlan(plan.name || '') ? 'border-blue-500 shadow-lg' : ''}`}
           >
-            {isPopularPlan(plan.name) && (
+            {isPopularPlan(plan.name || '') && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-blue-500 text-white">
                   Most Popular
@@ -182,18 +182,18 @@ export default function PlansPage() {
             )}
             
             <CardHeader className="text-center">
-              <div className={`mx-auto h-12 w-12 rounded-full bg-gradient-to-r ${getPlanColor(plan.name)} flex items-center justify-center text-white mb-4`}>
-                {getPlanIcon(plan.name)}
+              <div className={`mx-auto h-12 w-12 rounded-full bg-gradient-to-r ${getPlanColor(plan.name || '')} flex items-center justify-center text-white mb-4`}>
+                {getPlanIcon(plan.name || '')}
               </div>
-              <CardTitle className="text-2xl">{plan.name}</CardTitle>
+              <CardTitle className="text-2xl">{plan.name || 'Unknown Plan'}</CardTitle>
               <CardDescription className="text-lg">
-                {plan.description}
+                {plan.description || 'No description available'}
               </CardDescription>
               <div className="mt-4">
                 <span className="text-4xl font-bold">
-                  {plan.price === 0 ? 'Free' : formatPrice(plan.price)}
+                  {(plan.price || 0) === 0 ? 'Free' : formatPrice(plan.price || 0)}
                 </span>
-                {plan.price > 0 && (
+                {(plan.price || 0) > 0 && (
                   <span className="text-muted-foreground">/month</span>
                 )}
               </div>
@@ -205,29 +205,29 @@ export default function PlansPage() {
                 <div className="flex items-center space-x-2">
                   <Check className="h-4 w-4 text-green-600" />
                   <span className="text-sm">
-                    {plan.dailyRequestLimit.toLocaleString()} requests/day
+                    {(plan.dailyRequestLimit || 0).toLocaleString()} requests/day
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Check className="h-4 w-4 text-green-600" />
                   <span className="text-sm">
-                    {plan.monthlyRequestLimit.toLocaleString()} requests/month
+                    {(plan.monthlyRequestLimit || 0).toLocaleString()} requests/month
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Check className="h-4 w-4 text-green-600" />
                   <span className="text-sm">
-                    Up to {plan.maxFileSizeMB}MB file size
+                    Up to {plan.maxFileSizeMB || 0}MB file size
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Check className="h-4 w-4 text-green-600" />
                   <span className="text-sm">
-                    Up to {plan.maxPagesPerPdf} pages per PDF
+                    Up to {plan.maxPagesPerPdf || 0} pages per PDF
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  {plan.priorityProcessing ? (
+                  {(plan.priorityProcessing || false) ? (
                     <Check className="h-4 w-4 text-green-600" />
                   ) : (
                     <X className="h-4 w-4 text-gray-400" />
@@ -235,10 +235,10 @@ export default function PlansPage() {
                   <span className="text-sm">Priority processing</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  {plan.webhooksEnabled ? (
+                  {(plan.webhooksEnabled || false) ? (
                     <Check className="h-4 w-4 text-green-600" />
                   ) : (
-                    <X className="h-4 text-gray-400" />
+                    <X className="h-4 w-4 text-gray-400" />
                   )}
                   <span className="text-sm">Webhooks support</span>
                 </div>
@@ -253,7 +253,7 @@ export default function PlansPage() {
                 ) : (
                   <Button 
                     className={`w-full ${
-                      isPopularPlan(plan.name) 
+                      isPopularPlan(plan.name || '') 
                         ? 'bg-blue-600 hover:bg-blue-700' 
                         : ''
                     }`}
@@ -265,7 +265,7 @@ export default function PlansPage() {
                         <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                         Upgrading...
                       </>
-                    ) : plan.price === 0 ? (
+                    ) : (plan.price || 0) === 0 ? (
                       'Downgrade'
                     ) : (
                       'Upgrade'
